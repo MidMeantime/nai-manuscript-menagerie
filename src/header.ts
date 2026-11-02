@@ -1,7 +1,7 @@
 ﻿/*---
 compatibilityVersion: naiscript-1.0
 id: 813d5c32-3c38-4bf8-8739-edb68b7e57a3
-version: 0.3.2
+version: 0.3.3
 name: Mid's Manuscript Menagerie
 author: MidMeantime
 description: Real-time document and chapter analytics (characters, words, tokens, pages) with flexible chapter detection and a two-stage developmental editorial & continuity pipeline. Chapter detection by UCCDS; if the UCCDS script is installed, its chapter rules are used.
@@ -222,7 +222,7 @@ config:
     prettyName: "[AI Pipeline] Auto-Summarize Prior Chapter"
     type: boolean
     default: false
-    description: "If prior chapter context is enabled and the immediately preceding chapter has no summary, automatically generate its summary first."
+    description: "If prior chapter context is enabled and the immediately preceding chapter has no summary, automatically generate its summary first. Only that one chapter is filled in: with Last 4 or All Prior, other chapters without a summary are skipped."
   - name: reference_context_source
     prettyName: "[AI Pipeline] Context Reference Source"
     type: select

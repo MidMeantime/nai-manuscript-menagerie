@@ -322,6 +322,15 @@ function ensureSummaryHeader(text: string, expectedHeader: string): string {
  * falls in the last part of the window, otherwise at a word boundary, and adds exactly one "…"
  * only when text was actually cut. Never ends in a doubled ellipsis.
  */
+/**
+ * Display-only cleanup for a generated report (E12): a line that is only a bolded name
+ * ("**Mara**") followed straight by its paragraph gets a blank line, so markdown doesn't merge
+ * them into one paragraph. The saved text is never changed.
+ */
+function formatReportForDisplay(text: string): string {
+    return (text || "").replace(/^(\*\*[^*\n]+\*\*)[ \t]*\n(?![ \t]*\n)/gm, "$1\n\n");
+}
+
 function makePreview(text: string, maxChars: number): string {
     const clean = (text || "").replace(/\s+/g, " ").trim();
     if (clean.length <= maxChars) return clean;

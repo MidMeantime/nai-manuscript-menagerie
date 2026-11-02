@@ -493,7 +493,7 @@ async function getPriorChapterSummariesContext(currentChapterIndex: number, mode
 
     // Iterate chronologically from minIndex up to currentChapterIndex - 1
     for (let i = minIndex; i < currentChapterIndex; i++) {
-        const ch = appState.chapters.find(c => c.index === i);
+        const ch = getChapterByIndex(i);
         const effectiveChapter: ManuscriptChapter = ch || {
             index: i,
             // Placeholder only (no chapter at this position): a negative key never matches a stored report
@@ -665,7 +665,7 @@ async function analyzeChapterAction(chapterIndex: number): Promise<void> {
         return;
     }
 
-    const chapter = appState.chapters.find(c => c.index === chapterIndex);
+    const chapter = getChapterByIndex(chapterIndex);
     if (!chapter) {
         api.v1.ui.toast("Selected chapter could not be found.", { type: "error" });
         return;
@@ -683,7 +683,7 @@ async function analyzeChapterAction(chapterIndex: number): Promise<void> {
         const priorMode = appState.promptToggles.analysisPriorChapters || 'off';
         if (priorMode !== 'off' && chapterIndex > 0) {
             const priorIdx = chapterIndex - 1;
-            const priorCh = appState.chapters.find(c => c.index === priorIdx);
+            const priorCh = getChapterByIndex(priorIdx);
             const priorSummary = priorCh ? await getEffectiveChapterSummary(priorCh) : (appState.summaries[priorIdx]?.text || "");
             if (!priorSummary && appConfig.autoSummarizePriorChapter) {
                 if (priorCh) {
@@ -721,7 +721,7 @@ async function summarizeChapterAction(chapterIndex: number): Promise<void> {
         return;
     }
 
-    const chapter = appState.chapters.find(c => c.index === chapterIndex);
+    const chapter = getChapterByIndex(chapterIndex);
     if (!chapter) {
         api.v1.ui.toast("Selected chapter could not be found.", { type: "error" });
         return;
@@ -739,7 +739,7 @@ async function summarizeChapterAction(chapterIndex: number): Promise<void> {
         const priorMode = appState.promptToggles.summaryPriorChapters || 'off';
         if (priorMode !== 'off' && chapterIndex > 0) {
             const priorIdx = chapterIndex - 1;
-            const priorCh = appState.chapters.find(c => c.index === priorIdx);
+            const priorCh = getChapterByIndex(priorIdx);
             const priorSummary = priorCh ? await getEffectiveChapterSummary(priorCh) : (appState.summaries[priorIdx]?.text || "");
             if (!priorSummary && appConfig.autoSummarizePriorChapter) {
                 if (priorCh) {
@@ -778,7 +778,7 @@ async function continueAnalysisAction(chapterIndex: number): Promise<void> {
         return;
     }
 
-    const chapter = appState.chapters.find(c => c.index === chapterIndex);
+    const chapter = getChapterByIndex(chapterIndex);
     const existing = appState.analyses[chapterIndex];
     if (!chapter || !existing) {
         api.v1.ui.toast("No existing analysis found to continue.", { type: "error" });
@@ -859,7 +859,7 @@ async function continueSummaryAction(chapterIndex: number): Promise<void> {
         return;
     }
 
-    const chapter = appState.chapters.find(c => c.index === chapterIndex);
+    const chapter = getChapterByIndex(chapterIndex);
     const existing = appState.summaries[chapterIndex];
     if (!chapter || !existing) {
         api.v1.ui.toast("No existing summary found to continue.", { type: "error" });
@@ -986,7 +986,7 @@ async function saveSummaryToLorebookDirect(chapter: ManuscriptChapter, summaryTe
  * duplicate checking and user overwrite confirmation.
  */
 async function addAnalysisToLorebookAction(chapterIndex: number): Promise<void> {
-    const chapter = appState.chapters.find(c => c.index === chapterIndex);
+    const chapter = getChapterByIndex(chapterIndex);
     const analysis = appState.analyses[chapterIndex];
 
     if (!chapter || !analysis || !analysis.text) {
@@ -1065,7 +1065,7 @@ async function addAnalysisToLorebookAction(chapterIndex: number): Promise<void> 
  * duplicate checking and user overwrite confirmation.
  */
 async function addSummaryToLorebookAction(chapterIndex: number): Promise<void> {
-    const chapter = appState.chapters.find(c => c.index === chapterIndex);
+    const chapter = getChapterByIndex(chapterIndex);
     const summary = appState.summaries[chapterIndex];
 
     if (!chapter || !summary || !summary.text) {
@@ -1149,7 +1149,7 @@ async function addSummaryToLorebookAction(chapterIndex: number): Promise<void> {
  * Prompts confirmation to clear the cached analysis for a chapter.
  */
 async function promptClearAnalysisModal(chapterIndex: number): Promise<void> {
-    const chapter = appState.chapters.find(c => c.index === chapterIndex);
+    const chapter = getChapterByIndex(chapterIndex);
     const titleDisplay = chapter ? formatChapterDisplayTitle(chapter, appConfig.chapterNumberStyle) : `Chapter ${chapterIndex + 1}`;
 
     let modal: any = null;
@@ -1182,7 +1182,7 @@ async function promptClearAnalysisModal(chapterIndex: number): Promise<void> {
  * Prompts confirmation to clear the cached summary for a chapter.
  */
 async function promptClearSummaryModal(chapterIndex: number): Promise<void> {
-    const chapter = appState.chapters.find(c => c.index === chapterIndex);
+    const chapter = getChapterByIndex(chapterIndex);
     const titleDisplay = chapter ? formatChapterDisplayTitle(chapter, appConfig.chapterNumberStyle) : `Chapter ${chapterIndex + 1}`;
 
     let modal: any = null;
@@ -1215,7 +1215,7 @@ async function promptClearSummaryModal(chapterIndex: number): Promise<void> {
  * Prompts modal dialog to clear cached analysis, summary, or both for a chapter.
  */
 async function promptClearReportsModal(chapterIndex: number): Promise<void> {
-    const chapter = appState.chapters.find(c => c.index === chapterIndex);
+    const chapter = getChapterByIndex(chapterIndex);
     const titleDisplay = chapter ? formatChapterDisplayTitle(chapter, appConfig.chapterNumberStyle) : `Chapter ${chapterIndex + 1}`;
     const hasAnalysis = !!appState.analyses[chapterIndex];
     const hasSummary = !!appState.summaries[chapterIndex];

@@ -178,11 +178,32 @@ function jsonSize(value: any): number {
 
 // --- Configuration Loader ---
 
+/** Every option loadConfigFromSettings reads; they're requested together instead of one by one (B10) */
+const CONFIG_KEYS: string[] = [
+    "chapter_number_style", "words_per_page",
+    "show_word_count", "show_page_count", "show_token_count", "show_char_count",
+    "show_chapter_subcounts", "show_chapter_word_count", "show_chapter_page_count",
+    "show_chapter_token_count", "show_chapter_char_count",
+    "auto_analyze_before_summarize", "analysis_max_tokens", "summary_max_tokens",
+    "include_lorebook_in_analysis", "include_lorebook_in_summary",
+    "analysis_prior_chapters_mode", "summary_prior_chapters_mode", "auto_summarize_prior_chapter",
+    "reference_context_source", "analysis_lorebook_category", "save_to_lorebook", "lorebook_category",
+    "auto_finish_if_truncated", "debug_logging"
+];
+
 async function loadConfigFromSettings(): Promise<void> {
     try {
+        // Start every read at once; each getter below awaits its own. A failed read gives undefined (= default).
+        const pending = new Map<string, Promise<any>>();
+        for (const key of CONFIG_KEYS) {
+            pending.set(key, Promise.resolve().then(() => api.v1.config.get(key)).catch(() => undefined));
+        }
+        const read = (key: string): Promise<any> =>
+            pending.get(key) ?? Promise.resolve().then(() => api.v1.config.get(key)).catch(() => undefined);
+
         const getStr = async (key: string, def: string): Promise<string> => {
             try {
-                const val = await api.v1.config.get(key);
+                const val = await read(key);
                 return typeof val === 'string' && val.trim().length > 0 ? val.trim() : def;
             } catch {
                 return def;
@@ -191,7 +212,7 @@ async function loadConfigFromSettings(): Promise<void> {
 
         const getBool = async (key: string, def: boolean): Promise<boolean> => {
             try {
-                const val = await api.v1.config.get(key);
+                const val = await read(key);
                 return typeof val === 'boolean' ? val : def;
             } catch {
                 return def;
@@ -200,7 +221,7 @@ async function loadConfigFromSettings(): Promise<void> {
 
         const getNum = async (key: string, def: number): Promise<number> => {
             try {
-                const val = await api.v1.config.get(key);
+                const val = await read(key);
                 const parsed = typeof val === 'number' ? val : parseInt(String(val), 10);
                 return !isNaN(parsed) && parsed > 0 ? parsed : def;
             } catch {
@@ -964,7 +985,7 @@ async function saveSummaryToStorage(summary: ChapterSummary): Promise<void> {
 }
 
 function chapterKeyAt(chapterIndex: number): string | null {
-    const chapter = appState.chapters.find(c => c.index === chapterIndex);
+    const chapter = getChapterByIndex(chapterIndex);
     return chapter ? String(chapter.key) : null;
 }
 
@@ -987,7 +1008,7 @@ async function clearCachedReports(chapterIndex: number, target: 'analysis' | 'su
         if (key !== null) delete reportStore.summaries[key];
     }
     await persistReportStore(target === 'analysis' ? 'analyses' : (target === 'summary' ? 'summaries' : 'both'));
-    const chapter = appState.chapters.find(c => c.index === chapterIndex);
+    const chapter = getChapterByIndex(chapterIndex);
     if (chapter) {
         if (target === 'analysis' || target === 'both') chapter.hasAnalysis = false;
         if (target === 'summary' || target === 'both') chapter.hasSummary = false;
@@ -1003,6 +1024,16 @@ async function clearUnmatchedReports(): Promise<number> {
     if (removed > 0) await persistReportStore('both');
     appState.unmatchedReportCount = 0;
     return removed;
+}
+
+/**
+ * The chapter at a list position (B8). Chapters are numbered by position on every scan, so this is
+ * an array read; the find() is only a safety net if that ever stops being true.
+ */
+function getChapterByIndex(index: number): ManuscriptChapter | undefined {
+    const ch = appState.chapters[index];
+    if (ch && ch.index === index) return ch;
+    return appState.chapters.find((c: ManuscriptChapter) => c.index === index);
 }
 
 async function setActiveTab(tab: ActiveTab): Promise<void> {

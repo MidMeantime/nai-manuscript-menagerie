@@ -266,6 +266,13 @@ function joinPromptChunks(chunks: PromptChunkView[]): string {
         .join("\n\n");
 }
 
+/** "A", "A and B", "A, B, and C" */
+function joinSectionNames(names: string[]): string {
+    if (names.length <= 1) return names.join("");
+    if (names.length === 2) return `${names[0]} and ${names[1]}`;
+    return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
+}
+
 function buildSummaryUserPrompt(
     chapterHeaderOrNum: string,
     chapterTitleOrText: string,
@@ -348,12 +355,11 @@ ${chapterText}
         prompt += `Grounding Mandate: Focus exclusively on events and character psychology that occur in THIS chapter. Treat prior chapter context as background reality; do not duplicate earlier chapter developments unless they are actively revisited, complicated, or transformed here.\n\n`;
     }
 
-    const hasKeyDev = toggles?.summaryKeyDevelopments !== false;
-    if (hasKeyDev) {
-        prompt += `Provide the Chapter Summary and Key Developments following the exact output format now.`;
-    } else {
-        prompt += `Provide the Chapter Summary following the exact output format now.`;
-    }
+    // Name every active section, as the analysis closing line does (G8)
+    const sectionNames: string[] = ["Chapter Summary"];
+    if (toggles?.summaryKeyDevelopments !== false) sectionNames.push("Key Developments");
+    if (toggles?.summaryTargetedQuestions !== false) sectionNames.push("Targeted Questions");
+    prompt += `Provide the ${joinSectionNames(sectionNames)} following the exact output format now.`;
 
     return prompt;
 }

@@ -1410,7 +1410,7 @@ function makeReportDisplayCard(cfg: ReportDisplayCardConfig): any {
         {
             type: 'container' as const,
             style: SELECTABLE_TEXT_BOX_STYLE,
-            content: [makeText(report.text, true, { userSelect: 'text', cursor: 'text' })]
+            content: [makeText(formatReportForDisplay(report.text), true, { userSelect: 'text', cursor: 'text' })]
         } as any
     ];
 
