@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+
+      # Refresh vendored UCCDS from GitHub to ensure we're testing against the latest
+      - name: Fetch UCCDS dependency
+        run: npm run fetch-uccds
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test

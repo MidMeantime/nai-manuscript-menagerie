@@ -1,0 +1,14 @@
+# Author's prompt engineering
+/prompts-instructs
+
+# Scripts author used as initial comparisons for the agent (linked under Related Projects)
+/references
+
+# Image assets not meant to be shipped raw
+/assets
+
+# Old versions
+/archive
+
+# Dependencies (npm install)
+node_modules/

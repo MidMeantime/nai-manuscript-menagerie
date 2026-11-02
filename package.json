@@ -1,0 +1,26 @@
+{
+  "name": "mids-manuscript-menagerie",
+  "version": "0.3.2",
+  "description": "NovelAI User Script: Real-time document & chapter analytics and two-stage developmental editorial & continuity pipeline.",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "update-uccds": "node scripts/update_uccds.js",
+    "fetch-uccds": "node scripts/fetch_uccds.js",
+    "typecheck": "npx -y typescript --noEmit",
+    "test": "node tests/test_logic.js && node scripts/build.js && node tests/test_runtime.js && node tests/test_uccds.js",
+    "test:logic": "node tests/test_logic.js",
+    "test:runtime": "node scripts/build.js && node tests/test_runtime.js && node tests/test_uccds.js"
+  },
+  "keywords": [
+    "novelai",
+    "userscript",
+    "manuscript",
+    "editing",
+    "chapters"
+  ],
+  "author": "MidMeantime",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

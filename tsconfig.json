@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM"],
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "types": []
+  },
+  "include": [
+    "vendor/uccds/uccds-dual.ts",
+    "src/**/*",
+    "references/NovelAI_Script_Types.d.ts"
+  ]
+}
